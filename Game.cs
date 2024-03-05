@@ -71,39 +71,75 @@ public class Game
     }
 
     private void HandlePlayerTurn(Player player)
+{
+    // Solicitar al jugador que elija una acción (jugar una carta, usar una habilidad de líder, o pasar)
+    Console.WriteLine("Elige una acción:");
+    Console.WriteLine("1. Jugar una carta");
+    Console.WriteLine("2. Usar una habilidad de líder");
+    Console.WriteLine("3. Pasar");
+
+    int actionChoice = Convert.ToInt32(Console.ReadLine());
+
+    switch (actionChoice)
     {
-        // Lógica para manejar el turno de un jugador
-        // Esto podría incluir jugar una carta, usar una habilidad de líder, o pasar
+        case 1: // Jugar una carta
+            Card cardToPlay = SelectCardFromHand(player); // Este método es un placeholder y necesita ser implementado
+            UnitCard.AttackType position = SelectAttackType(); // Este método es un placeholder y necesita ser implementado
+            player.PlayCard(cardToPlay, position);
+            break;
+        case 2: // Usar una habilidad de líder
+            player.UseLeaderAbility(player.Leader);
+            break;
+        case 3: // Pasar
+            player.HasPassed = true;
+            Console.WriteLine("ha pasado su turno.");
+            break;
+        default:
+            Console.WriteLine("Opción inválida. Intenta de nuevo.");
+            HandlePlayerTurn(player); // Vuelve a llamar al método para que el jugador elija una acción válida
+            break;
     }
+}
 
     private bool IsGameOver()
+{
+    // Verificar si alguno de los jugadores ha ganado el juego (dos rondas ganadas)
+    if (Player1RoundsWon == 2 || Player2RoundsWon == 2)
     {
-        // Lógica para determinar si el juego ha terminado
-        // Esto podría basarse en el número de rondas ganadas o en alguna otra condición
-        return CurrentRound > MaxRounds;
+        return true;
     }
+
+    // Verificar si el juego ha alcanzado el número máximo de rondas
+    if (CurrentRound > MaxRounds)
+    {
+        return true;
+    }
+
+    // Si ninguna de las condiciones anteriores se cumple, el juego continúa
+    return false;
+}
+
+private int CalculateTotalPower(Player player)
+{
+    return player.BattleField.MeleeCards.OfType<UnitCard>().Sum(card => card.Power) +
+           player.BattleField.RangedCards.OfType<UnitCard>().Sum(card => card.Power) +
+           player.BattleField.SiegeCards.OfType<UnitCard>().Sum(card => card.Power);
+}
 
 private void DetermineWinner()
 {
-    // Obtén la suma de los Power de las cartas unitarias en el campo de batalla para cada jugador
-    int player1TotalPower = Player1.BattleField.MeleeCards.OfType<UnitCard>().Sum(card => card.Power) +
-                             Player1.BattleField.RangedCards.OfType<UnitCard>().Sum(card => card.Power) +
-                             Player1.BattleField.SiegeCards.OfType<UnitCard>().Sum(card => card.Power);
+    int player1TotalPower = CalculateTotalPower(Player1);
+    int player2TotalPower = CalculateTotalPower(Player2);
 
-    int player2TotalPower = Player2.BattleField.MeleeCards.OfType<UnitCard>().Sum(card => card.Power) +
-                             Player2.BattleField.RangedCards.OfType<UnitCard>().Sum(card => card.Power) +
-                             Player2.BattleField.SiegeCards.OfType<UnitCard>().Sum(card => card.Power);
-
-    // Determina el ganador de la ronda basado en la suma de los Power
     if (player1TotalPower > player2TotalPower)
     {
         Player1RoundsWon++;
-        Player1TotalPoints += player1TotalPower; // Acumula los puntos ganados en la ronda
+        Player1TotalPoints += player1TotalPower;
     }
     else if (player2TotalPower > player1TotalPower)
     {
         Player2RoundsWon++;
-        Player2TotalPoints += player2TotalPower; // Acumula los puntos ganados en la ronda
+        Player2TotalPoints += player2TotalPower;
     }
     // No se realiza ninguna acción si la ronda termina en empate
 }
@@ -156,6 +192,41 @@ public void DetermineGameWinner()
     if (Player1RoundsWon == 0 && Player2RoundsWon == 0)
     {
         Console.WriteLine("El juego termina en empate.");
+    }
+}
+
+private Card SelectCardFromHand(Player player)
+{
+    Console.WriteLine("Cartas en mano:");
+    for (int i = 0; i < player.Hand.Count; i++)
+    {
+        Console.WriteLine($"{i + 1}. {player.Hand[i].Name}");
+    }
+
+    Console.WriteLine("Elige una carta para jugar:");
+    int cardChoice = Convert.ToInt32(Console.ReadLine());
+    return player.Hand[cardChoice - 1];
+}
+
+private UnitCard.AttackType SelectAttackType()
+{
+    Console.WriteLine("Elige un tipo de ataque:");
+    Console.WriteLine("1. Cercano");
+    Console.WriteLine("2. A distancia");
+    Console.WriteLine("3. Asedio");
+
+    int attackTypeChoice = Convert.ToInt32(Console.ReadLine());
+    switch (attackTypeChoice)
+    {
+        case 1:
+            return UnitCard.AttackType.Melee;
+        case 2:
+            return UnitCard.AttackType.Ranged;
+        case 3:
+            return UnitCard.AttackType.Siege;
+        default:
+            Console.WriteLine("Opción inválida. Intenta de nuevo.");
+            return SelectAttackType(); // Vuelve a llamar al método para que el usuario elija un tipo de ataque válido
     }
 }
 

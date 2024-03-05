@@ -1,5 +1,9 @@
 public class UnitCard : Card
 {
+    public UnitCard(string name, string description, string faction) : base(name, description, faction)
+    {
+    }
+
     public enum AttackType
 {
     Melee, // Ataque cuerpo a cuerpo

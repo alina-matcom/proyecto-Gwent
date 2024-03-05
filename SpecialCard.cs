@@ -10,8 +10,12 @@ public class SpecialCard : Card
 
     public SpecialType SpecialTypes { get; set; }
 
-public override void UseCardEffect()
-{
-    // Implementación del efecto especial
-}
+    public SpecialCard(string name, string description, string effect) : base(name, description, effect)
+    {
+    }
+
+    public override void UseCardEffect()
+    {
+        // Implementación del efecto especial
+    }
 }
