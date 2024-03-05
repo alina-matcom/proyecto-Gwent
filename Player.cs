@@ -14,29 +14,31 @@ public class Player
 
     // Cartas en la mano del jugador
     public List<Card> Hand { get; set; } = new List<Card>();
-
-
+    public bool HasPassed { get; internal set; }
 
     // Métodos para interactuar con el jugador
-    public void DrawCard()
+    public void DrawCard(int numberOfCards)
 {
-    // Verificar si la mano del jugador está llena
-    if (Hand.Count < 10)
+    // Verificar si la mano del jugador tiene espacio para las cartas adicionales
+    if (Hand.Count + numberOfCards <= 10)
     {
-        // Verificar si hay cartas en el mazo
-        if (deck.Cards.Count > 0)
+        // Verificar si hay suficientes cartas en el mazo
+        if (deck.Cards.Count >= numberOfCards)
         {
-            // Robar la primera carta del mazo
-            Card drawnCard = deck.Cards[0];
-            deck.Cards.RemoveAt(0);
+            for (int i = 0; i < numberOfCards; i++)
+            {
+                // Robar la primera carta del mazo
+                Card drawnCard = deck.Cards[0];
+                deck.Cards.RemoveAt(0);
 
-            // Agregar la carta robada a la mano del jugador
-            Hand.Add(drawnCard);
+                // Agregar la carta robada a la mano del jugador
+                Hand.Add(drawnCard);
+            }
         }
         else
         {
-            // Si el mazo está vacío, no se puede robar una carta
-            throw new InvalidOperationException("El mazo está vacío.");
+            // Si no hay suficientes cartas en el mazo, lanzar una excepción
+            throw new InvalidOperationException("No hay suficientes cartas en el mazo.");
         }
     }
     else
